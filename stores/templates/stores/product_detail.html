@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}
+{{ product.name }} - รายละเอียดสินค้า
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+    
+    <a href="{% url 'product_list' %}" class="inline-flex items-center text-gray-500 hover:text-yellow-600 mb-6 transition">
+        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        กลับไปหน้ารายการสินค้า
+    </a>
+
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div class="grid grid-cols-1 md:grid-cols-2">
+            
+            <div class="bg-gray-50 p-8 flex items-center justify-center min-h-100">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="max-h-125 w-auto object-contain shadow-sm rounded-lg hover:scale-105 transition duration-500">
+                {% else %}
+                    <div class="text-gray-400 flex flex-col items-center">
+                        <svg class="w-20 h-20 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>ไม่มีรูปภาพสินค้า</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="p-8 md:p-12 flex flex-col">
+                <div class="flex justify-between items-start">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{{ product.name }}</h1>
+                    
+                    {% if product.stock > 0 %}
+                        <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                            มีสินค้า ({{ product.stock }})
+                        </span>
+                    {% else %}
+                        <span class="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                            สินค้าหมด
+                        </span>
+                    {% endif %}
+                </div>
+
+                <p class="text-3xl font-bold text-yellow-600 mt-4 mb-6">฿{{ product.price|intcomma }}</p>
+
+                <div class="prose max-w-none text-gray-600 mb-8 border-t border-b py-6 border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">รายละเอียดสินค้า</h3>
+                    <p class="whitespace-pre-line">{{ product.description|default:"ไม่มีรายละเอียดเพิ่มเติม" }}</p>
+                </div>
+
+                <div class="mt-auto">
+                    {% if product.stock > 0 %}
+                    <form action="{% url 'cart:add_to_cart' product_id=product.id %}" method="POST" class="flex flex-col sm:flex-row gap-4">
+                        {% csrf_token %}
+                        
+                        <div class="flex items-center border border-gray-300 rounded-lg w-full sm:w-auto">
+                            <button type="button" onclick="updateDetailQuantity(-1)" class="px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-l-lg text-lg">-</button>
+                            <input type="number" name="quantity" id="detail-quantity" value="1" min="1" max="{{ product.stock }}" class="w-16 text-center border-none focus:ring-0 text-gray-800 font-bold bg-transparent" readonly>
+                            <button type="button" onclick="updateDetailQuantity(1, '{{ product.stock }}')" class="px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-r-lg text-lg">+</button>
+                        </div>
+
+                        <button type="submit" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition flex justify-center items-center gap-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            เพิ่มลงตะกร้า
+                        </button>
+                    </form>
+                    {% else %}
+                        <button class="w-full bg-gray-200 text-gray-400 font-bold py-3 rounded-lg cursor-not-allowed" disabled>
+                            สินค้าหมดชั่วคราว
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateDetailQuantity(change, maxStock) {
+        const input = document.getElementById('detail-quantity');
+        let val = parseInt(input.value);
+        let newVal = val + change;
+
+        if (newVal < 1) newVal = 1;
+        if (maxStock && newVal > maxStock) newVal = maxStock;
+        
+        input.value = newVal;
+    }
+</script>
+{% endblock %}

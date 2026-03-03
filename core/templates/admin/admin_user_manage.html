@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">จัดการบัญชีผู้ใช้</h1>
+        <a href="{% url 'dashboard' %}"
+            class="group flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:text-gray-900 transition shadow-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            กลับ Dashboard
+        </a>
+    </div>
+    <div class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <form method="GET" action="" class="flex gap-3">
+            <div class="relative grow">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ request.GET.search }}"
+                    placeholder="ค้นหา ID, ชื่อผู้ใช้ หรือ ชื่อ-นามสกุล..."
+                    class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg leading-5 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out">
+            </div>
+            <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg transition duration-150 ease-in-out shadow-md shadow-blue-500/20 flex items-center gap-2">
+                ค้นหา
+            </button>
+            {% if request.GET.search %}
+            <a href="?"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-2.5 px-4 rounded-lg transition duration-150 ease-in-out border border-gray-200">
+                ล้างค่า
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div
+        class="p-4 mb-4 text-white rounded {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="bg-white shadow-md rounded my-6 overflow-x-auto">
+        <table class="min-w-full table-auto">
+            <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <tr>
+                    <th class="py-3 px-6 text-left">ชื่อผู้ใช้ / Email</th>
+                    <th class="py-3 px-6 text-left">ชื่อ-นามสกุล</th>
+
+                    <th class="py-3 px-6 text-center">ตำแหน่ง</th>
+
+                    <th class="py-3 px-6 text-center">สถานะ</th>
+                    <th class="py-3 px-6 text-center">จัดการ</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-gray-600 text-sm font-light">
+                {% for user in users %}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+
+                    <td class="py-3 px-6 text-left whitespace-nowrap">
+                        <div class="flex items-center">
+                            <span class="font-medium">
+                                {% if user.username %}
+                                {{ user.username }}
+                                {% else %}
+                                {{ user.email }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </td>
+
+                    <td class="py-3 px-6 text-left">
+                        {{ user.first_name }} {{ user.last_name }}
+                    </td>
+
+                    <td class="py-3 px-6 text-center">
+                        {% if user.is_superuser %}
+                        <span class="bg-blue-200 text-blue-600 py-1 px-3 rounded-full text-xs font-bold">
+                            Admin
+                        </span>
+                        {% elif user.is_staff %}
+                        <span class="bg-purple-200 text-purple-600 py-1 px-3 rounded-full text-xs font-bold">
+                            Staff
+                        </span>
+                        {% else %}
+                        <span
+                            class="bg-gray-200 text-gray-700 py-1 px-3 rounded-full text-xs font-bold border border-gray-300">
+                            ผู้ใช้ทั่วไป
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-6 text-center">
+                        {% if user.is_active %}
+                        <span class="bg-green-200 text-green-600 py-1 px-3 rounded-full text-xs">Active</span>
+                        {% else %}
+                        <span class="bg-red-200 text-red-600 py-1 px-3 rounded-full text-xs">Banned</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="py-3 px-6 text-center">
+                        <div class="flex item-center justify-center space-x-2">
+                            {% if not user.is_superuser %}
+                            <a href="{% url 'toggle_staff_status' user.id %}">
+                                {% if user.is_staff %}
+                                <button class="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600"
+                                    title="ลดสถานะเป็นผู้ใช้ทั่วไป">
+                                    ลดสถานะ
+                                </button>
+                                {% else %}
+                                <button class="bg-purple-500 text-white px-2 py-1 rounded text-xs hover:bg-purple-600"
+                                    title="ตั้งเป็น Staff">
+                                    ตั้งเป็น Staff
+                                </button>
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'toggle_user_status' user.id %}">
+                                {% if user.is_active %}
+                                <button
+                                    class="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600">ระงับ</button>
+                                {% else %}
+                                <button
+                                    class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600">ปลดแบน</button>
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'delete_user' user.id %}" onclick="return confirm('ยืนยันการลบ?');">
+                                <button
+                                    class="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">ลบ</button>
+                            </a>
+                            {% else %}
+                            <span class="text-gray-400 text-xs">ID_Admin_Superuser</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

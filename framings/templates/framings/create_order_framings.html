@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}
+สั่งทำกรอบรูป
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+
+        <h1 class="text-2xl font-extrabold text-gray-800 text-center mb-8">
+            สั่งทำกรอบรูป
+        </h1>
+
+        <form method="POST" enctype="multipart/form-data" class="flex flex-col gap-5">
+            {% csrf_token %}
+
+            <div class="group w-full aspect-square bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 hover:border-gray-400 transition relative overflow-hidden"
+                onclick="document.getElementById('id_uploaded_image').click();">
+
+                <div id="upload-placeholder" class="text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-gray-400 mb-2
+                             transition-colors duration-300 group-hover:text-gray-600" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+
+                    <span class="text-gray-500 font-medium
+                             transition-colors duration-300 group-hover:text-gray-700">
+                        คลิกเพื่อเลือกรูป
+                    </span>
+
+                    <p class="text-xs text-gray-400">
+                        รองรับไฟล์ PNG, JPG (สูงสุด 10MB)
+                    </p>
+                </div>
+
+
+                <img id="preview-image" src="" class="absolute inset-0 w-full h-full object-contain hidden bg-white">
+            </div>
+
+            <input type="file" name="image" id="id_uploaded_image" class="hidden" accept="image/*"
+                onchange="previewFile()">
+
+            <div>
+                <label class="block text-gray-700 font-bold mb-2">เลือกขนาดกรอบ</label>
+                <select name="size_option" id="size_option"
+                    class="w-full p-3 border rounded bg-gray-50 text-gray-900 [&>option]:text-gray-700" required
+                    onchange="calculateTotal()">
+                    <option value="" disabled selected data-price="0">-- กรุณาเลือกขนาด --</option>
+                    <option value="8x10" data-price="150">8 x 10 นิ้ว (150 บ.)</option>
+                    <option value="10x12" data-price="200">10 x 12 นิ้ว (200 บ.)</option>
+                    <option value="16x20" data-price="600">16 x 20 นิ้ว (600 บ.)</option>
+                    <option value="20x24" data-price="800">20 x 24 นิ้ว (800 บ.)</option>
+                    <option value="24x36" data-price="1200">24 x 36 นิ้ว (1200 บ.)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-bold mb-2">เลือกรูปแบบกรอบ</label>
+                <select name="style_option" id="style_option" 
+                    class="w-full p-3 border rounded bg-gray-50 text-gray-900 [&>option]:text-gray-700" required
+                    onchange="calculateTotal()">
+                    <option value="" disabled selected data-price="0">-- กรุณาเลือก --</option>
+                    <option value="wood" data-price="0">กรอบไม้ </option>
+                    <option value="glass" data-price="0">กรอบกระจก </option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-bold mb-2">เลือกใส่ขาตั้ง/ที่แขวน</label>
+                <select name="mounting_option" id="mounting_option" 
+                    class="w-full p-3 border rounded bg-gray-50 text-gray-900 [&>option]:text-gray-700"
+                    required onchange="calculateTotal()">
+                    <option value="stand" data-price="0">ขาตั้ง (ฟรี)</option>
+                    <option value="hanger" data-price="0">ที่แขวน (ฟรี)</option>
+                    <option value="both" data-price="0">ทั้งคู่ (ฟรี)</option>
+                </select>
+            </div>
+            
+            <div class="mb-6">
+                <label for="id_note" class="block mb-2 text-sm font-medium text-gray-900">
+                    หมายเหตุถึงร้าน (เพิ่มเติม)
+                </label>
+
+                <textarea name="note" id="id_note" rows="3"
+                    class="block w-full p-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="เช่น อยากให้ห่อกันกระแทกหนาๆ หรืออื่นๆ"></textarea>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4 mt-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 font-medium">ยอดชำระ(ยังไม่รวมค่าจัดส่ง):</span>
+                    <div class="text-right">
+                        <span id="total-price-display" class="text-3xl font-extrabold text-blue-600">0</span>
+                        <span class="text-gray-800 font-bold text-lg">บาท</span>
+                    </div>
+                </div>
+                <input type="hidden" name="total_price" id="hidden_total_price" value="0">
+            </div>
+
+            <div class="flex gap-3 mt-4">
+                <button type="submit" name="action" value="confirm_order"
+                    class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg shadow-gray-300 flex justify-center items-center gap-2">
+                    <span>ยืนยันคำสั่งซื้อ</span>
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    function previewFile() {
+        const preview = document.getElementById('preview-image');
+        const file = document.getElementById('id_uploaded_image').files[0];
+        const placeholder = document.getElementById('upload-placeholder');
+
+        const reader = new FileReader();
+        reader.addEventListener("load", function () {
+            preview.src = reader.result;
+            preview.classList.remove('hidden');
+            placeholder.style.display = "none";
+        }, false);
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function calculateTotal() {
+        const sizeSelect = document.getElementById('size_option');
+        const styleSelect = document.getElementById('style_option');
+        const mountingSelect = document.getElementById('mounting_option');
+
+        const sizePrice = parseInt(sizeSelect.options[sizeSelect.selectedIndex]?.getAttribute('data-price')) || 0;
+        const stylePrice = parseInt(styleSelect.options[styleSelect.selectedIndex]?.getAttribute('data-price')) || 0;
+        const mountingPrice = parseInt(mountingSelect.options[mountingSelect.selectedIndex]?.getAttribute('data-price')) || 0;
+
+        const total = sizePrice + stylePrice + mountingPrice;
+
+        document.getElementById('total-price-display').innerText = total.toLocaleString();
+        document.getElementById('hidden_total_price').value = total;
+    }
+
+    document.addEventListener('DOMContentLoaded', calculateTotal);
+</script>
+{% endblock %}

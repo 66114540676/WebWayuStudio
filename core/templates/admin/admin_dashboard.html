@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load humanize %} {% block title %}
+จัดการหลังบ้าน (Admin)
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-800">จัดการหลังบ้าน (Admin/Staff)</h1>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <a href="{% url 'product-manage-list' %}"
+            class="group block bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 overflow-hidden">
+
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">จัดการคลังสินค้า</h2>
+                <p class="text-gray-600">ดูรายการสินค้า/แก้ไข/ลบสินค้า</p>
+            </div>
+
+            <div class="border-t bg-gray-50 px-6 py-4 flex items-center justify-between">
+                <span class="text-sm text-gray-500">จำนวนสินค้าในระบบ</span>
+                <span class="text-2xl font-bold text-gray-800">{{ total_products_count|intcomma }}</span>
+            </div>
+        </a>
+
+
+        <a href="{% url 'admin-order-list' %}"
+            class="group block bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 overflow-hidden">
+
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">คำสั่งซื้อสินค้าทั่วไป</h2>
+                <p class="text-gray-600">ดูรายการคำสั่งซื้อ/จัดการคำสั่งซื้อ/อัปเดตสถานะ</p>
+            </div>
+
+            <div class="border-t bg-gray-50 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">จำนวนออเดอร์</span>
+                    <span class="text-2xl font-bold text-gray-800">{{ general_orders_count|intcomma }}</span>
+                </div>
+
+                <div class="mt-1 flex items-center justify-between">
+                    <span class="text-sm text-yellow-600">รอตรวจสอบ</span>
+                    <span class="text-sm font-semibold text-yellow-700">{{ pending_general_count|intcomma }}</span>
+                </div>
+            </div>
+        </a>
+
+
+        <a href="{% url 'order_framings_manager' %}"
+            class="group block bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 overflow-hidden">
+
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">ออเดอร์สั่งทำกรอบรูป</h2>
+                <p class="text-gray-600">ดูรายการคำสั่งซื้อ/จัดการคำสั่งซื้อกรอบรูป/อัปเดตสถานะ</p>
+            </div>
+
+            <div class="border-t bg-gray-50 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">จำนวนออเดอร์</span>
+                    <span class="text-2xl font-bold text-gray-800">{{ framing_orders_count|intcomma }}</span>
+                </div>
+
+                <div class="mt-1 flex items-center justify-between">
+                    <span class="text-sm text-yellow-600">รอตรวจสอบ</span>
+                    <span class="text-sm font-semibold text-yellow-700">{{ pending_framing_count|intcomma }}</span>
+                </div>
+            </div>
+        </a>
+
+
+        <a href="{% url 'order_marbles_manager' %}"
+            class="group block bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 overflow-hidden">
+
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">ออเดอร์สั่งทำป้ายหินอ่อน</h2>
+                <p class="text-gray-600">ดูรายการคำสั่งซื้อ/จัดการคำสั่งซื้อป้ายหินอ่อน/อัปเดตสถานะ</p>
+            </div>
+
+            <div class="border-t bg-gray-50 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">จำนวนออเดอร์</span>
+                    <span class="text-2xl font-bold text-gray-800">{{ plaque_orders_count|intcomma }}</span>
+                </div>
+
+                <div class="mt-1 flex items-center justify-between">
+                    <span class="text-sm text-yellow-600">รอตรวจสอบ</span>
+                    <span class="text-sm font-semibold text-yellow-700">{{ pending_plaque_count|intcomma }}</span>
+                </div>
+            </div>
+        </a>
+
+
+        <a href="{% url 'admin_user_manage' %}"
+            class="group block bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 overflow-hidden">
+
+            <div class="p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">จัดการผู้ใช้งาน</h2>
+                <p class="text-gray-600">จัดการสมาชิก/สิทธิ์ผู้ใช้</p>
+            </div>
+
+            <div class="border-t bg-gray-50 px-6 py-4 flex items-center justify-between">
+                <span class="text-sm text-gray-500">จำนวนผู้ใช้ทั้งหมด</span>
+                <span class="text-2xl font-bold text-gray-800">{{ total_users_count|intcomma }}</span>
+            </div>
+        </a>
+
+        <a href="{% url 'admin_calendar' %}"
+            class="block p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2"> จัดการตารางคิวงาน</h2>
+            <p class="text-gray-600">ดูปฏิทินงาน/ลงตารางงาน</p>
+        </a>
+    </div>
+
+    <div class="border-t pt-8">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+            รายงานยอดขาย
+        </h2>
+
+        <div class="bg-gray-100 p-1 rounded-lg inline-flex">
+            <button onclick="switchTab('all')" id="btn-all"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-all bg-white text-gray-800 shadow-sm">
+                ทั้งหมด
+            </button>
+            <button onclick="switchTab('month')" id="btn-month"
+                class="px-4 py-2 rounded-md text-sm font-medium transition-all text-gray-500 hover:text-gray-900">
+                เดือนนี้
+            </button>
+        </div>
+    </div>
+
+    <div id="tab-content-all" class="block animate-fade-in">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="col-span-1 md:col-span-2 p-6 rounded-lg shadow-lg text-white from-green-500 to-green-600 bg-linear-to-r">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium uppercase mb-1">รายได้รวมทั้งหมด (ตั้งแต่เปิดร้าน)</p>
+                        <p class="text-4xl font-bold">฿ {{ grand_total|intcomma }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-1 p-6 rounded-lg shadow-lg bg-white border border-gray-200">
+                <div class="flex flex-col justify-center h-full">
+                    <p class="text-gray-500 text-sm font-medium uppercase mb-1">ออเดอร์ (รวมตั้งแต่เปิดร้าน)</p>
+                    <p class="text-4xl font-bold text-gray-800">{{ total_orders }} <span class="text-lg font-normal text-gray-500">รายการ</span></p>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">ยอดขายแยกตามประเภทบริการ (รวม)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-lg shadow p-5 border border-gray-100 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-1">สินค้าทั่วไป</h4>
+                    <p class="text-2xl font-bold text-gray-800">฿ {{ sales_general|intcomma }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="block text-3xl font-bold text-green-500">{{ count_general }}</span>
+                    <span class="text-xs text-gray-500 uppercase">ออเดอร์</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-5 border border-gray-100 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-1">กรอบรูปสั่งทำ</h4>
+                    <p class="text-2xl font-bold text-gray-800">฿ {{ sales_framing|intcomma }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="block text-3xl font-bold text-green-500">{{ count_framing }}</span>
+                    <span class="text-xs text-gray-500 uppercase">ออเดอร์</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-5 border border-gray-100 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-1">ป้ายหินอ่อน</h4>
+                    <p class="text-2xl font-bold text-gray-800">฿ {{ sales_plaque|intcomma }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="block text-3xl font-bold text-green-500">{{ count_plaque }}</span>
+                    <span class="text-xs text-gray-500 uppercase">ออเดอร์</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-content-month" class="hidden animate-fade-in">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="col-span-1 md:col-span-2 p-6 rounded-lg shadow-lg text-white from-blue-500 to-blue-600 bg-linear-to-r">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium uppercase mb-1">รายได้ประจำเดือนนี้</p>
+                        <p class="text-4xl font-bold">฿ {{ m_grand_total|intcomma }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-1 p-6 rounded-lg shadow-lg bg-white border border-gray-200">
+                <div class="flex flex-col justify-center h-full">
+                    <p class="text-gray-500 text-sm font-medium uppercase mb-1">ออเดอร์เดือนนี้ (รวม)</p>
+                    <p class="text-4xl font-bold text-gray-800">{{ m_total_orders }} <span class="text-lg font-normal text-gray-500">รายการ</span></p>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">ยอดขายแยกตามประเภทบริการ (เดือนนี้)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-lg shadow p-5 border border-blue-100 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-1">สินค้าทั่วไป</h4>
+                    <p class="text-2xl font-bold text-blue-600">฿ {{ m_sales_general|intcomma }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="block text-3xl font-bold text-blue-500">{{ m_count_general }}</span>
+                    <span class="text-xs text-gray-500 uppercase">ออเดอร์</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-5 border border-blue-100 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-1">กรอบรูปสั่งทำ</h4>
+                    <p class="text-2xl font-bold text-blue-600">฿ {{ m_sales_framing|intcomma }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="block text-3xl font-bold text-blue-500">{{ m_count_framing }}</span>
+                    <span class="text-xs text-gray-500 uppercase">ออเดอร์</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-5 border border-blue-100 flex justify-between items-center">
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-1">ป้ายหินอ่อน</h4>
+                    <p class="text-2xl font-bold text-blue-600">฿ {{ m_sales_plaque|intcomma }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="block text-3xl font-bold text-blue-500">{{ m_count_plaque }}</span>
+                    <span class="text-xs text-gray-500 uppercase">ออเดอร์</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabName) {
+        // 1. จัดการ Content
+        const contentAll = document.getElementById('tab-content-all');
+        const contentMonth = document.getElementById('tab-content-month');
+
+        if (tabName === 'all') {
+            contentAll.classList.remove('hidden');
+            contentMonth.classList.add('hidden');
+        } else {
+            contentAll.classList.add('hidden');
+            contentMonth.classList.remove('hidden');
+        }
+
+        // 2. จัดการหน้าตาปุ่ม (Active State)
+        const btnAll = document.getElementById('btn-all');
+        const btnMonth = document.getElementById('btn-month');
+
+        const activeClass = ['bg-white', 'text-gray-800', 'shadow-sm'];
+        const inactiveClass = ['text-gray-500', 'hover:text-gray-900'];
+
+        if (tabName === 'all') {
+            btnAll.classList.add(...activeClass);
+            btnAll.classList.remove(...inactiveClass);
+
+            btnMonth.classList.remove(...activeClass);
+            btnMonth.classList.add(...inactiveClass);
+        } else {
+            btnMonth.classList.add(...activeClass);
+            btnMonth.classList.remove(...inactiveClass);
+
+            btnAll.classList.remove(...activeClass);
+            btnAll.classList.add(...inactiveClass);
+        }
+    }
+</script>
+{% endblock %}

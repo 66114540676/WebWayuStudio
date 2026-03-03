@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}จัดการออเดอร์สั่งทำป้ายหินอ่อน (Marble Order Manager){% endblock %}
+
+{% block content %}
+<div class="mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
+
+    <div class="sm:flex sm:items-center sm:justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                รายการออเดอร์สั่งทำป้ายหินอ่อน
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">ตรวจสอบคำสั่งซื้อ ดูสลิป และอัปเดตสถานะ/การจัดส่ง</p>
+        </div>
+        <a href="{% url 'dashboard' %}"
+            class="group flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:text-gray-900 transition shadow-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            กลับ Dashboard
+        </a>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-900 text-white">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider w-24">
+                            ID / วันที่
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider w-64">
+                            ลูกค้า
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider w-24">
+                            รูปต้นฉบับ
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-medium uppercase tracking-wider w-64">
+                            รายละเอียดงาน
+                        </th>
+                        <th class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider w-40">
+                            ยอดเงิน / สลิป
+                        </th>
+                        <th class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider w-40">
+                            สถานะ
+                        </th>
+                        <th class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider w-20">
+                            แก้ไข
+                        </th>
+                        <th class="px-6 py-4 text-center text-xs font-medium uppercase tracking-wider w-20">
+                            ลบ
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                    {% for order in orders %}
+                    <tr class="hover:bg-gray-50 transition duration-150 ease-in-out align-top">
+
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-blue-600 text-lg">#{{ order.id }}</div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                {{ order.created_at|date:"d/m/Y H:i" }}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 align-top">
+                            <div class="flex flex-col h-full">
+                                {% if order.user %}
+                                    <div class="mb-4">
+                                        <div class="text-base font-extrabold text-gray-900 leading-tight mb-1 group-hover:text-blue-600 transition-colors">
+                                            {% if order.user.first_name %}
+                                                {{ order.user.first_name }} {{ order.user.last_name }}
+                                            {% else %}
+                                                {{ order.user.username }}
+                                            {% endif %}
+                                        </div>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-wider">
+                                            UID: {{ order.user.username }}
+                                        </span>
+                                    </div>
+
+                                    <div class="space-y-2.5">
+                                        <div class="flex items-center text-xs text-gray-500">
+                                            <div class="w-6 h-6 bg-gray-50 rounded-md flex items-center justify-center mr-2 border border-gray-100">
+                                                <span class="text-[10px]">✉️</span>
+                                            </div>
+                                            <span class="truncate">{{ order.user.email }}</span>
+                                        </div>
+
+                                        <div class="flex items-center text-xs text-gray-500">
+                                            <div class="w-6 h-6 bg-gray-50 rounded-md flex items-center justify-center mr-2 border border-gray-100">
+                                                <span class="text-[10px]">📞</span>
+                                            </div>
+                                            {% if order.user.phone_number %}
+                                                <span class="font-semibold">{{ order.user.phone_number }}</span>
+                                            {% else %}
+                                                <span class="text-gray-300 italic">ไม่มีเบอร์โทร</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="flex items-start text-xs text-gray-500">
+                                            <div class="w-6 h-6 bg-gray-50 rounded-md flex items-center justify-center mr-2 border border-gray-100 shrink-0">
+                                                <span class="text-[10px]">📍</span>
+                                            </div>
+                                            <div class="leading-relaxed pt-0.5">
+                                                {% if order.user.address %}
+                                                    <span class="line-clamp-3 hover:line-clamp-none transition-all cursor-default">
+                                                        {{ order.user.address }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-gray-300 italic text-[11px]">ไม่มีข้อมูลที่อยู่</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-gray-400 italic text-xs text-center py-4">- ไม่มีข้อมูลสมาชิก -</div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <div class="h-32 w-32 flex items-center">
+                                {% if order.deceased_photo %}
+                                <div onclick="openImageModal('{{ order.deceased_photo.url }}')"
+                                     class="relative group h-32 w-32 cursor-pointer shrink-0">
+                                    <img class="h-32 w-32 object-cover rounded-lg border border-gray-200 shadow-sm group-hover:opacity-75 transition"
+                                         src="{{ order.deceased_photo.url }}" alt="รูปต้นฉบับ">
+                                </div>
+                                {% else %}
+                                <div class="h-32 w-32 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-[10px] border border-gray-200 shrink-0">
+                                    No Pic
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col gap-3">
+                                <div>
+                                    <span class="text-xs text-gray-400 uppercase tracking-wide">ชื่อผู้วายชนม์</span>
+                                    <div class="font-bold text-gray-900 text-base leading-snug mt-0.5">
+                                        {{ order.deceased_name }}
+                                    </div>
+                                </div>
+
+                                <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded border border-gray-100 space-y-1">
+                                    <div class="flex justify-between">
+                                        <span>ชาตะ:</span>
+                                        <span class="font-medium text-gray-900">{{ order.birth_date|date:"d/m/Y"|default:"-" }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span>มรณะ:</span>
+                                        <span class="font-medium text-gray-900">{{ order.death_date|date:"d/m/Y"|default:"-" }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                                        {{ order.get_stone_style_display }}
+                                    </span>
+                                    <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-100">
+                                        {{ order.get_size_display }}
+                                    </span>
+                                </div>
+
+                                {% if order.note %}
+                                <div class="text-[11px] text-orange-800 bg-orange-50 p-2 rounded border border-orange-100 mt-1">
+                                    <strong class="block mb-0.5">📝 หมายเหตุ:</strong>
+                                    {{ order.note }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <div class="font-bold text-green-600 text-base">
+                                ฿{{ order.final_price|floatformat:0|intcomma }}
+                            </div>
+                            <div class="text-xs text-gray-400 mb-3">
+                                ({{ order.get_shipping_method_display }})
+                            </div>
+
+                            {% if order.PAYMENT_SLIP %}
+                                <button type="button" onclick="openImageModal('{{ order.PAYMENT_SLIP.url }}')"
+                                    class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 hover:text-green-900 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 transition hover:shadow-sm cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    ตรวจสลิป
+                                </button>
+                            {% else %}
+                                <span class="inline-block text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-full font-bold border border-red-100">
+                                    รอสลิป
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <form action="{% url 'update_order_status' order.id %}" method="POST">
+                                {% csrf_token %}
+                                <select name="status" onchange="this.form.submit()" class="block w-full py-1.5 pl-3 pr-8 text-xs font-bold rounded-full border-0 shadow-sm cursor-pointer focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
+                                {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                                {% elif order.status == 'shipped' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+
+                                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>
+                                        รอชำระเงิน
+                                    </option>
+                                    <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>
+                                        กำลังผลิต
+                                    </option>
+                                    <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>
+                                        จัดส่งแล้ว
+                                    </option>
+                                    <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>
+                                        ยกเลิก
+                                    </option>
+                                </select>
+                            </form>
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <a href="{% url 'edit_order_marbles' order.id %}" class="inline-flex items-center justify-center w-8 h-8 text-blue-500 bg-blue-100 rounded-full hover:bg-blue-600 hover:text-white transition duration-200 shadow-sm" title="แก้ไขรายละเอียด">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </a>
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <form action="{% url 'delete_marbles_order' order.id %}" method="POST"
+                                onsubmit="return confirm('คุณแน่ใจหรือไม่ที่จะลบออเดอร์ #{{ order.id }}?');">
+                                {% csrf_token %}
+                                <button type="submit" class="text-gray-300 hover:text-red-500 transition p-2 rounded-full hover:bg-red-50" title="ลบรายการ">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500 bg-gray-50">
+                            ยังไม่มีรายการสั่งทำป้ายหินอ่อน
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="imageModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50">
+    <div class="absolute inset-0" onclick="closeImageModal()"></div>
+    <button onclick="closeImageModal()" class="absolute top-5 right-5 text-white text-3xl font-bold z-50">×</button>
+    <div class="flex items-center justify-center h-full">
+        <img id="modalImage" src="" class="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl">
+    </div>
+</div>
+
+<script>
+    function openImageModal(imageUrl) {
+        if (!imageUrl) return;
+        document.getElementById('modalImage').src = imageUrl;
+        document.getElementById('imageModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+        setTimeout(() => { document.getElementById('modalImage').src = ''; }, 200);
+        document.body.style.overflow = 'auto';
+    }
+    document.addEventListener('keydown', function (event) {
+        if (event.key === "Escape") closeImageModal();
+    });
+</script>
+{% endblock %}

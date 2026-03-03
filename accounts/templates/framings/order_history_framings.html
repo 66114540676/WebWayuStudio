@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4">
+
+    <a href="{% url 'order_history_dashboard' %}" class="text-gray-500 hover:text-yellow-600 mb-4 inline-block">
+        &larr; กลับไปหน้ารวม
+    </a>
+
+    <div class="bg-white shadow-sm rounded-lg mb-6 overflow-hidden">
+        <div class="flex overflow-x-auto border-b border-gray-200">
+            <a href="?status=all" class="px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 {% if current_status == 'all' %}border-b-2 border-yellow-500 text-yellow-600 bg-yellow-50{% else %}text-gray-500 hover:text-gray-700 hover:bg-gray-50{% endif %}">ทั้งหมด</a>
+            <a href="?status=pending" class="px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 {% if current_status == 'pending' %}border-b-2 border-yellow-500 text-yellow-600 bg-yellow-50{% else %}text-gray-500 hover:text-gray-700 hover:bg-gray-50{% endif %}">รอตรวจสอบชำระเงิน</a>
+            <a href="?status=processing" class="px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 {% if current_status == 'processing' %}border-b-2 border-yellow-500 text-yellow-600 bg-yellow-50{% else %}text-gray-500 hover:text-gray-700 hover:bg-gray-50{% endif %}">กำลังผลิต/เตรียมพัสดุ</a>
+            <a href="?status=shipped" class="px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 {% if current_status == 'shipped' %}border-b-2 border-yellow-500 text-yellow-600 bg-yellow-50{% else %}text-gray-500 hover:text-gray-700 hover:bg-gray-50{% endif %}">จัดส่งแล้ว/รอรับที่ร้าน</a>
+            <a href="?status=cancelled" class="px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 {% if current_status == 'cancelled' %}border-b-2 border-yellow-500 text-yellow-600 bg-yellow-50{% else %}text-gray-500 hover:text-gray-700 hover:bg-gray-50{% endif %}">ยกเลิก</a>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-sm rounded-lg overflow-hidden mt-6">
+        <div class="bg-orange-400 px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-bold text-white flex items-center">
+                รายการสั่งทำกรอบรูป
+            </h2>
+        </div>
+
+        <div class="overflow-x-auto"> <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase whitespace-nowrap">ลำดับ</th>
+                        <th class="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase whitespace-nowrap">รูปที่สั่งทำ</th>
+                        <th class="px-6 py-3 text-left text-sm font-bold text-gray-600 uppercase w-1/3 min-w-75">รายละเอียดกรอบ</th>
+                        <th class="px-6 py-3 text-center text-sm font-bold text-gray-600 uppercase whitespace-nowrap">จำนวน</th>
+                        <th class="px-6 py-3 text-center text-sm font-bold text-gray-600 uppercase whitespace-nowrap">วันที่สั่ง</th>
+                        <th class="px-6 py-3 text-center text-sm font-bold text-gray-600 uppercase whitespace-nowrap">ราคารวม</th>
+                        <th class="px-6 py-3 text-center text-sm font-bold text-gray-600 uppercase whitespace-nowrap">สถานะ</th>
+                        <th class="px-6 py-3 text-center text-sm font-bold text-gray-600 uppercase whitespace-nowrap">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for order in orders %}
+                    <tr class="hover:bg-gray-50 transition border-b group align-top">
+                        
+                        <td class="px-6 py-4 text-blue-600 font-bold whitespace-nowrap">
+                            #{{ order.id }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {% if order.uploaded_image %}
+                            <div class="w-24 h-24"> <img src="{{ order.uploaded_image.url }}" class="w-full h-full object-cover rounded border shadow-sm">
+                            </div>
+                            {% else %}
+                            <div class="w-24 h-24 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-400">
+                                No Img
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-gray-900">
+                            <div class="flex flex-col gap-2">
+                                <div class="text-sm">
+                                    <span class="font-bold text-gray-700 inline-block w-20">ขนาด:</span> 
+                                    <span>{{ order.get_size_option_display }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="font-bold text-gray-700 inline-block w-20">รูปแบบ:</span> 
+                                    <span>{{ order.get_style_option_display }}</span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="font-bold text-gray-700 inline-block w-20">การติดตั้ง:</span> 
+                                    <span>{{ order.get_mounting_option_display }}</span>
+                                </div>
+
+                                {% if order.note %}
+                                <div class="mt-2 p-2 bg-red-50 rounded border border-red-100">
+                                    <span class="text-xs font-bold text-red-500 block mb-1">หมายเหตุถึงร้าน :</span>
+                                    <p class="text-xs text-red-600 wrap-break-word leading-relaxed">{{ order.note }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <span class="bg-gray-100 text-gray-800 text-sm font-semibold px-3 py-1 rounded-full border">
+                                {{ order.quantity }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 text-center text-gray-500 text-sm whitespace-nowrap">
+                            {{ order.created_at|date:"d M Y" }}
+                        </td>
+
+                        <td class="px-6 py-4 text-center text-green-600 font-bold whitespace-nowrap">
+                            ฿{{ order.total_price|intcomma }}
+                        </td>
+
+                        <td class="px-6 py-4 text-center whitespace-nowrap">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold inline-block
+                                {% if order.status == 'shipped' %}bg-green-100 text-green-800 border-green-200
+                                {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800 border-yellow-200
+                                {% elif order.status == 'processing' %}bg-blue-100 text-blue-800 border-blue-200
+                                {% elif order.status == 'cancelled' %}bg-red-100 text-red-800 border-red-200
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 text-center whitespace-nowrap">
+                            <a href="{% url 'framing_order_detail' order.id %}" 
+                               class="inline-block bg-white border border-gray-300 text-gray-700 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-400 font-medium py-1 px-3 rounded text-sm transition shadow-sm">
+                                ดูรายละเอียด
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-10 text-gray-500">
+                            <div class="flex flex-col items-center justify-center">
+                                <p>ไม่พบรายการสั่งทำกรอบรูปในสถานะนี้</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

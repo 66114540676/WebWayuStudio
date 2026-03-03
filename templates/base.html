@@ -1,0 +1,188 @@
+{% load static %}
+{% load tailwind_tags %}
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayuStudio - {% block title %}หน้าหลัก{% endblock %}</title>
+    {% tailwind_css %}
+
+    <style>
+        /* บังคับปิดลายพื้นหลังทั้งโปรเจกต์ */
+        html,
+        body {
+            background-image: none !important;
+            background: #f3f4f6 !important;
+            /* สีเทาอ่อนของ bg-gray-100 */
+        }
+
+        /* กรณีที่มีการใช้ pseudo-element สร้างลายเส้น */
+        body::before,
+        body::after {
+            display: none !important;
+            content: none !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans flex flex-col min-h-screen">
+
+    <header class="bg-yellow-400 shadow-md relative z-50">
+        <div class="container mx-auto flex justify-between items-center p-4">
+            <a href="{% url 'home' %}" class="text-3xl font-bold text-gray-800 hover:text-gray-900 transition">
+                WayuStudio
+            </a>
+
+            <nav class="flex items-center space-x-2 md:space-x-4">
+
+                <div class="hidden md:flex space-x-2">
+                    <a href="{% url 'product_list' %}"
+                        class="text-gray-800 font-semibold py-2 px-3 hover:bg-yellow-500 rounded transition">
+                        สินค้า
+                    </a>
+                    <a href="{% url 'create_order_framings' %}"
+                        class="text-gray-800 font-semibold py-2 px-3 hover:bg-yellow-500 rounded transition">
+                        สั่งทำกรอบรูป
+                    </a>
+                    <a href="{% url 'create_order_marbles' %}"
+                        class="text-gray-800 font-semibold py-2 px-3 hover:bg-yellow-500 rounded transition">
+                        สั่งแกะป้ายหินอ่อน
+                    </a>
+                </div>
+
+                {% if user.is_authenticated %}
+
+                <div class="relative ml-3">
+                    <div>
+                        <button type="button"
+                            class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 transition"
+                            id="user-menu-button" aria-expanded="false" onclick="toggleDropdown()">
+                            <span class="sr-only">Open user menu</span>
+                            <img class="w-10 h-10 rounded-full object-cover border-2 border-white"
+                                src="{% if user.image %}{{ user.image.url }}{% else %}/media/profile_pics/default.png{% endif %}"
+                                alt="user photo">
+                        </button>
+                    </div>
+
+                    <div class="hidden z-50 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow absolute right-0 w-48 border border-gray-200"
+                        id="user-dropdown">
+
+                        <div class="px-4 py-3" role="none">
+                            <p class="text-sm text-gray-900" role="none">
+                                สวัสดี, {{ user.first_name|default:user.username }}
+                            </p>
+                            <p class="text-sm font-medium text-gray-500 truncate" role="none">
+                                {{ user.email }}
+                            </p>
+                        </div>
+
+                        <ul class="py-1" role="none">
+                            {% if user.is_staff %}
+                            <li>
+                                <a href="{% url 'dashboard' %}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    Dashboard
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            <li>
+                                <a href="{% url 'profile' %}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    โปรไฟล์ของฉัน
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'order_history_dashboard' %}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    ประวัติการสั่งซื้อ
+                                </a>
+                            </li>
+
+                            <div class="md:hidden border-t border-gray-100">
+                                <li><a href="{% url 'product_list' %}"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">สินค้า</a></li>
+                                <li><a href="{% url 'create_order_framings' %}"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">สั่งทำกรอบรูป</a>
+                                </li>
+                                <li><a href="{% url 'create_order_marbles' %}"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">สั่งแกะป้ายหินอ่อน</a>
+                                </li>
+                            </div>
+
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" class="w-full">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                        class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                        ออกจากระบบ
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <a href="{% url 'cart:cart_detail' %}"
+                    class="relative p-2 rounded-full bg-gray-200 text-gray-800 hover:bg-yellow-300 transition focus:outline-none">
+
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 01-8 0"></path>
+                    </svg>
+
+                    {% if cart_item_count > 0 %}
+                    <span
+                        class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                        {{ cart_item_count }}
+                    </span>
+                    {% endif %}
+                </a>
+                {% else %}
+                <div class="flex space-x-2">
+                    <a href="{% url 'signup' %}"
+                        class="bg-white text-gray-800 text-sm font-semibold py-2 px-3 border border-gray-400 rounded hover:bg-gray-200 transition">
+                        สมัครสมาชิก
+                    </a>
+                    <a href="{% url 'login' %}"
+                        class="bg-blue-500 text-white text-sm font-semibold py-2 px-3 rounded hover:bg-blue-700 transition">
+                        เข้าสู่ระบบ
+                    </a>
+                </div>
+                {% endif %}
+
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-10 p-4 grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white text-center p-4">
+        <p>&copy; 2025 สงวนลิขสิทธิ์. WayuStudio.</p>
+    </footer>
+
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // ปิด Dropdown เมื่อคลิกที่อื่นบนหน้าจอ
+        window.addEventListener('click', function (e) {
+            const button = document.getElementById('user-menu-button');
+            const dropdown = document.getElementById('user-dropdown');
+
+            if (button && dropdown && !button.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

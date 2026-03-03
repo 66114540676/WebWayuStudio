@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block title %}จัดการตารางคิวงาน{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* 1. ตัวกล่อง Event หลัก */
+    .fc-daygrid-event {
+        white-space: normal !important;
+        /* อนุญาตให้ข้อความขึ้นบรรทัดใหม่ */
+        height: auto !important;
+        /* ปล่อยให้ความสูงยืดตามข้อความ */
+        min-height: 2em !important;
+        /* ความสูงขั้นต่ำ */
+        align-items: start !important;
+        /* จัดข้อความชิดบน */
+        display: flex !important;
+        /* ใช้ Flex เพื่อจัดระเบียบ */
+        flex-wrap: wrap !important;
+        /* ให้เนื้อหาภายในไหลลงล่างได้ */
+    }
+
+    /* 2. เนื้อหาข้างใน (ตัวหนังสือ) */
+    .fc-event-title,
+    .fc-event-main {
+        white-space: normal !important;
+        /* บังคับตัดคำ */
+        overflow-wrap: break-word !important;
+        /* ตัดคำยาวๆ ไม่ให้ล้น */
+        word-break: break-word !important;
+        /* ตัดคำไทยให้สวยงาม */
+        text-overflow: clip !important;
+        /* เอา ... ออก (แสดงให้หมด) */
+
+        display: block !important;
+        /* ให้ประพฤติตัวเป็นก้อนข้อความปกติ */
+        width: 100% !important;
+        /* ขยายเต็มความกว้าง */
+    }
+
+    /* --- Global Font Styling --- */
+    body,
+    .fc,
+    input,
+    .font-sans {
+        font-family: 'Sarabun', sans-serif !important;
+    }
+
+    /* --- Input Field Styling --- */
+    input[type="text"],
+    input[type="date"] {
+        color: #111827 !important;
+        /* ดำเข้ม */
+    }
+
+    ::placeholder {
+        color: #9CA3AF !important;
+        opacity: 1 !important;
+    }
+
+    /* แก้สีวันที่ใน Chrome */
+    input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+    input[type="date"]::-webkit-datetime-edit {
+        color: #111827 !important;
+    }
+
+    /* --- FullCalendar General Customization --- */
+    #calendar {
+        --fc-neutral-text-color: #111827;
+        /* บังคับสีพื้นฐานเป็นดำ */
+        --fc-page-bg-color: #ffffff;
+        --fc-today-bg-color: #FFFBEB;
+        --fc-border-color: #E5E7EB;
+        color: #111827 !important;
+    }
+
+    /* ลิงก์และตัวหนังสือทั้งหมดในปฏิทิน */
+    #calendar a,
+    #calendar .fc-event-title,
+    #calendar .fc-col-header-cell-cushion,
+    #calendar .fc-daygrid-day-number {
+        color: #111827 !important;
+        text-decoration: none !important;
+    }
+
+    /* --- ✅ ส่วนแก้ไขใหม่: เจาะจงหน้า List View (หน้ารายการ) --- */
+
+    /* 1. หัวข้อวันที่ (แถบสีเทาแนวนอน) */
+    .fc-list-day-cushion {
+        background-color: #F3F4F6 !important;
+        /* พื้นหลังสีเทาอ่อน */
+    }
+
+    .fc-list-day-text,
+    .fc-list-day-side-text {
+        color: #111827 !important;
+        /* ✅ ตัวหนังสือวันที่ต้องดำเข้ม */
+        font-weight: 700 !important;
+        text-decoration: none !important;
+    }
+
+    /* 2. รายการงานในหน้า List */
+    .fc-list-event-title {
+        color: #111827 !important;
+        /* ✅ ชื่องานต้องดำเข้ม */
+        font-weight: 500 !important;
+    }
+
+    .fc-list-event-time {
+        color: #4B5563 !important;
+        /* เวลาให้เป็นสีเทาเข้ม */
+    }
+
+    /* Effect เวลาเอาเมาส์ชี้ในหน้า List */
+    .fc-list-event:hover td {
+        background-color: #EFF6FF !important;
+        /* สีฟ้าจางๆ */
+    }
+
+    /* จุดสีหน้าชื่องาน */
+    .fc-list-event-dot {
+        border-color: #2563EB !important;
+    }
+
+    /* --- จบส่วนแก้ไข List View --- */
+
+
+    /* ปุ่มกดในปฏิทิน */
+    #calendar .fc-button {
+        background-color: #fff !important;
+        border: 1px solid #D1D5DB !important;
+        color: #374151 !important;
+        font-weight: 600;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    #calendar .fc-button:hover {
+        background-color: #F9FAFB !important;
+        border-color: #9CA3AF !important;
+    }
+
+    #calendar .fc-button-primary:not(:disabled).fc-button-active,
+    #calendar .fc-button-primary:not(:disabled):active {
+        background-color: #2563EB !important;
+        border-color: #2563EB !important;
+        color: #fff !important;
+    }
+
+    /* ✅ แก้ไอคอนปฏิทินในช่องเลือกวัน (Date Picker) ให้ชัด */
+
+    input[type="date"] {
+        /* บังคับให้ Browser ใช้โหมดสว่างกับช่องนี้ (ไอคอนจะกลับมาเป็นสีดำเข้มทันที) */
+        color-scheme: light !important;
+        color: #111827 !important;
+    }
+
+    /* กรณีบาง Browser ดื้อ ให้บังคับสีไอคอนโดยตรง */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 1 !important;
+        display: block !important;
+        cursor: pointer !important;
+        /* ถ้ายังไม่ดำ ให้ลองเปลี่ยน filter: invert(1); */
+        filter: invert(0) !important;
+    }
+</style>
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">จัดการตารางคิวงาน</h1>
+            <p class="text-gray-500 mt-1">วางแผนและจัดการคิวงานทั้งหมดของร้าน</p>
+        </div>
+        <a href="{% url 'dashboard' %}"
+            class="group flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg hover:bg-gray-50 hover:border-gray-400 hover:text-gray-900 transition shadow-sm font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            กลับ Dashboard
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+
+        <div class="lg:col-span-1 lg:sticky lg:top-8">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="bg-blue-100 p-2 rounded-lg text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800">เพิ่มคิวงานใหม่</h2>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">วันที่นัดหมาย</label>
+                            <input type="date" name="date" required
+                                class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 text-gray-900 bg-gray-50 border transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">รายละเอียดงาน</label>
+                            <input type="text" name="title" required placeholder="เช่น ถ่ายรูปงานแต่ง..."
+                                class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 text-gray-900 bg-gray-50 border transition-colors">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-blue-600 text-white font-bold px-4 py-3 rounded-xl hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition shadow-lg shadow-blue-500/30 flex justify-center items-center gap-2">
+                            บันทึกคิวงาน
+                        </button>
+                    </div>
+                </form>
+
+                <div
+                    class="mt-6 flex items-start gap-3 bg-yellow-50 p-4 rounded-xl border border-yellow-100 text-yellow-800 text-sm">
+                    <div>
+                        <span class="font-bold block mb-1">คำแนะนำ:</span>
+                        หากต้องการดูรายการงาน <b>แก้ไข</b> หรือ <b>ลบ</b> ให้คลิกที่แถบรายการงานบนปฏิทินทางขวามือ
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-3">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div id='calendar'></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="fixed inset-0 z-9999 hidden"
+    style="background-color: rgba(17, 24, 39, 0.65); backdrop-filter: blur(4px);">
+
+    <div class="flex items-center justify-center w-full h-full font-sans">
+
+        <div
+            class="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 border border-gray-100 transform transition-all scale-100">
+
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    ✏️ แก้ไขคิวงาน
+                </h3>
+                <button type="button" onclick="closeModal()"
+                    class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="editForm" method="POST" action="">
+                {% csrf_token %}
+
+                <div class="mb-5">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">วันที่นัดหมาย</label>
+                    <input type="date" id="editDate" name="date" required
+                        class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 text-gray-900 bg-gray-50 border">
+                </div>
+
+                <div class="mb-8">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">รายละเอียดงาน</label>
+                    <input type="text" id="editTitle" name="title" required
+                        class="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 text-gray-900 bg-gray-50 border">
+                </div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <a id="deleteLink" href="#"
+                        onclick="return confirm('⚠️ ยืนยันที่จะลบคิวงานนี้? (ไม่สามารถกู้คืนได้)')"
+                        class="group flex items-center gap-2 text-red-500 hover:text-red-700 font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70 group-hover:opacity-100"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        ลบงาน
+                    </a>
+
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeModal()"
+                            class="px-5 py-2.5 rounded-lg text-gray-600 bg-gray-100 hover:bg-gray-200 font-semibold transition">
+                            ยกเลิก
+                        </button>
+                        <button type="submit"
+                            class="px-5 py-2.5 rounded-lg text-white bg-blue-600 hover:bg-blue-700 font-semibold shadow-lg shadow-blue-500/30 transition">
+                            บันทึก
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'th',
+            events: '/api/calendar-events/',
+
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,listMonth'
+            },
+
+            buttonText: {
+                today: 'วันนี้',
+                month: 'ปฏิทิน',
+                list: 'รายการ'
+            },
+
+            height: 'auto',
+            dayMaxEvents: true,
+
+            eventClick: function (info) {
+                openModal(info.event);
+            }
+        });
+        calendar.render();
+    });
+
+    function openModal(event) {
+        var modal = document.getElementById('editModal');
+        var form = document.getElementById('editForm');
+        var titleInput = document.getElementById('editTitle');
+        var dateInput = document.getElementById('editDate');
+        var deleteLink = document.getElementById('deleteLink');
+
+        titleInput.value = event.title;
+        dateInput.value = event.startStr;
+
+        form.action = "/dashboard/calendar/edit/" + event.id + "/";
+        deleteLink.href = "/dashboard/calendar/delete/" + event.id + "/";
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+
+    window.onclick = function (event) {
+        var modal = document.getElementById('editModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}
+แก้ไขคำสั่งซื้อป้ายหินอ่อน #{{ order.id }}
+{% endblock %}
+
+<style>
+    /* บังคับให้ไอคอนปฏิทินแสดงผลและจัดตำแหน่ง */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        display: block;
+        background: transparent;
+        bottom: 0;
+        color: transparent;
+        cursor: pointer;
+        height: auto;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: auto;
+    }
+    
+    /* ทำให้ Input ดูเหมือนมี icon อยู่ตลอด (Optional) */
+    .date-input-wrapper {
+        position: relative;
+    }
+</style>
+
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+        
+        <div class="bg-gray-900 px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-extrabold text-white flex items-center gap-3">
+                    แก้ไขคำสั่งซื้อ #{{ order.id }} (ป้ายหินอ่อน)
+                </h1>
+            </div>
+            <a href="{% url 'order_marbles_manager' %}" class="bg-white text-gray-900 hover:bg-gray-100 px-5 py-2.5 rounded-full font-bold text-sm transition shadow-lg flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                ย้อนกลับ
+            </a>
+        </div>
+
+        <div class="p-6 lg:p-10">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    
+                    <div class="lg:col-span-4 space-y-8">
+                        
+                        <div class="bg-white rounded-2xl border-2 border-gray-200 shadow-sm overflow-hidden">
+                            <div class="p-4 border-b border-gray-100 bg-gray-50">
+                                <h3 class="font-extrabold text-gray-800 text-lg pl-3">รูปถ่ายผู้วายชนม์</h3>
+                            </div>
+                            <div class="p-4 flex flex-col items-center">
+                                {% if order.deceased_photo %}
+                                    <div class="relative group cursor-pointer w-full mb-4" onclick="openImageModal('{{ order.deceased_photo.url }}')">
+                                        <div class="aspect-square bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
+                                            <img src="{{ order.deceased_photo.url }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                        </div>
+                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-center justify-center pointer-events-none">
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="flex flex-col items-center justify-center h-48 text-gray-300 bg-gray-50 rounded-xl w-full border-2 border-dashed mb-4">
+                                        <span class="font-bold">ไม่มีรูปภาพ</span>
+                                    </div>
+                                {% endif %}
+                                
+                                <label class="block text-sm font-bold text-gray-700 mb-2 w-full text-left">เปลี่ยนรูปใหม่</label>
+                                <input type="file" name="deceased_photo" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 rounded-2xl border-2 border-blue-100 overflow-hidden">
+                            <div class="p-4 border-b border-blue-200 bg-blue-100/50">
+                                <h3 class="text-blue-900 font-extrabold text-lg flex items-center gap-2">
+                                    หลักฐานการโอน
+                                </h3>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">ชื่อผู้สั่ง</label>
+                                    <div class="text-gray-900 font-bold text-lg border-b border-blue-200 pb-1">{{ order.user.username|default:"Guest" }}</div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">วันที่สั่งซื้อ</label>
+                                    <div class="text-gray-900 font-bold">{{ order.created_at|date:"d M Y, H:i" }} น.</div>
+                                </div>
+                                
+                                <div class="pt-2">
+                                    <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">หลักฐานการโอน</label>
+                                    
+                                    {% if order.PAYMENT_SLIP %}
+                                        <div class="flex items-center gap-3 mb-3">
+                                            <img src="{{ order.PAYMENT_SLIP.url }}" onclick="openImageModal('{{ order.PAYMENT_SLIP.url }}')" class="w-16 h-16 rounded-lg object-cover border border-blue-200 cursor-pointer hover:opacity-80 transition">
+                                            
+                                            <div>
+                                                <span class="text-xs text-green-600 font-bold">มีสลิปแล้ว</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-sm text-gray-400 italic mb-3">ยังไม่มีสลิปแนบมา</div>
+                                    {% endif %}
+
+                                    <label class="block text-xs font-bold text-gray-500 mb-1">อัปโหลด/เปลี่ยนสลิป</label>
+                                    <input type="file" name="payment_slip" accept="image/*" class="block w-full text-xs text-slate-500
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-full file:border-0
+                                      file:text-xs file:font-bold
+                                      file:bg-white file:text-blue-700
+                                      hover:file:bg-blue-100
+                                      cursor-pointer border border-blue-200 rounded-lg p-1
+                                    "/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8 space-y-6">
+                        
+                        <div class="bg-white p-1">
+                            <h3 class="text-gray-800 font-extrabold text-xl mb-4 border-b-2 border-gray-100 pb-2 flex items-center gap-2">
+                                ข้อมูลบนป้าย (ผู้วายชนม์)
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">ชื่อผู้วายชนม์ </label>
+                                    <input type="text" name="deceased_name" value="{{ order.deceased_name }}" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 text-lg" required>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-gray-700 font-bold mb-2">ชาตะ</label>
+                                        <div class="date-input-wrapper relative">
+                                            <input type="date" 
+                                                name="birth_date" 
+                                                value="{{ order.birth_date|date:'Y-m-d' }}" 
+                                                class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                                onclick="this.showPicker()"> 
+                                            </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-700 font-bold mb-2">มรณะ</label>
+                                        <div class="date-input-wrapper relative">
+                                            <input type="date" 
+                                                name="death_date" 
+                                                value="{{ order.death_date|date:'Y-m-d' }}" 
+                                                class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                                onclick="this.showPicker()">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                            <h3 class="text-gray-800 font-extrabold text-xl mb-4 pb-2 border-b border-gray-200 flex items-center gap-2">
+                                สเปคสินค้า
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">ขนาด</label>
+                                    <select name="size" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500">
+                                        {% for code, label in size_choices %}
+                                            <option value="{{ code }}" {% if order.size == code %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">ชนิดหิน</label>
+                                    <select name="stone_style" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500">
+                                        {% for code, label in stone_style_choices %}
+                                            <option value="{{ code }}" {% if order.stone_style == code %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200">
+                            <h3 class="text-gray-800 font-extrabold text-xl mb-4 pb-2 border-b border-gray-200 flex items-center gap-2">
+                                การจัดการและจัดส่ง
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">วิธีจัดส่ง</label>
+                                    <select name="shipping_method" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500">
+                                        {% for code, label in shipping_choices %}
+                                            <option value="{{ code }}" {% if order.shipping_method == code %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">วิธีชำระเงิน</label>
+                                    <select name="payment_method" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500">
+                                        {% for code, label in payment_choices %}
+                                            <option value="{{ code }}" {% if order.payment_method == code %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-bold mb-2">ราคาสุทธิ (ระบบคำนวณอัตโนมัติ)</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-3 text-green-600 font-bold">฿</span>
+                                        <input type="text" value="{{ order.final_price|intcomma }}" disabled class="w-full border border-gray-300 rounded-lg px-4 py-2 pl-8 text-green-700 font-extrabold text-xl bg-gray-100 cursor-not-allowed">
+                                        <p class="text-xs text-gray-400 mt-1">*ราคาจะอัปเดตเมื่อกดบันทึก ตามขนาดและวิธีส่ง</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 p-6 rounded-2xl border border-orange-200">
+                            <label class="block text-orange-800 font-bold mb-2">หมายเหตุ</label>
+                            <textarea name="note" rows="3" class="w-full border border-orange-200 rounded-lg px-4 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-400">{{ order.note|default:"" }}</textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xl py-4 rounded-xl shadow-xl transition transform hover:-translate-y-1">
+                            บันทึกการแก้ไข
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="imageModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50">
+    <div class="absolute inset-0" onclick="closeImageModal()"></div>
+    <button onclick="closeImageModal()" class="absolute top-5 right-5 text-white text-3xl font-bold z-50">×</button>
+    <div class="flex items-center justify-center h-full">
+        <img id="modalImage" src="" class="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl">
+    </div>
+</div>
+
+<script>
+    function openImageModal(url) {
+        const img = document.getElementById('modalImage');
+        img.src = url;
+        document.getElementById('imageModal').classList.remove('hidden');
+        setTimeout(() => img.classList.remove('scale-95'), 50);
+    }
+    function closeImageModal() {
+        const img = document.getElementById('modalImage');
+        img.classList.add('scale-95');
+        document.getElementById('imageModal').classList.add('hidden');
+    }
+</script>
+{% endblock %}

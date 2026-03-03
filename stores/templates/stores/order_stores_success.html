@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}
+สั่งซื้อสำเร็จ
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 text-center bg-white p-10 rounded-xl shadow-lg">
+
+        <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-green-100">
+            <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+
+        <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+            สั่งซื้อสำเร็จ!
+        </h2>
+        <p class="mt-2 text-sm text-gray-600">
+            ขอบคุณที่ใช้บริการกับเรา <br>
+            ระบบได้รับข้อมูลคำสั่งซื้อและสลิปโอนเงินของคุณเรียบร้อยแล้ว
+        </p>
+
+        <div class="bg-blue-50 p-4 rounded-lg text-left text-sm text-blue-800 mt-4">
+            <p><strong>สิ่งที่ต้องทำต่อ:</strong></p>
+            <ul class="list-disc pl-5 mt-1 space-y-1">
+                <li>ทางร้านจะตรวจสอบยอดเงินภายใน 24 ชม.</li>
+                <li>เมื่อตรวจสอบเสร็จ สถานะจะเปลี่ยนเป็น "กำลังผลิต/เตรียมพัสดุ"</li>
+            </ul>
+        </div>
+
+        <div class="space-y-3">
+            <a href="{% url 'product_list' %}"
+                class="block w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition shadow-md transform hover:-translate-y-0.5">
+                กลับไปหน้าสินค้า
+            </a>
+
+            <a href="/"
+                class="block w-full py-3.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold rounded-lg transition transform hover:-translate-y-0.5">
+                กลับไปหน้าแรก
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

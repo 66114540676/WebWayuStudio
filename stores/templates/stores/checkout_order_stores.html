@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+
+{% block title %}
+ยืนยันคำสั่งซื้อ
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10 p-6 bg-white shadow-xl rounded-xl">
+
+    <h2 class="text-2xl font-bold mb-8 text-gray-800 border-b pb-4">
+        🛍️ ยืนยันคำสั่งซื้อ: {{ product.name }}
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+        <!-- ฝั่งซ้าย: รายละเอียดสินค้า -->
+        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-bold text-gray-700 mb-4">1. รายละเอียดสินค้า</h3>
+
+            <div class="mb-6 flex justify-center bg-white p-2 rounded border">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="max-h-64 object-contain rounded">
+                {% else %}
+                <div class="text-gray-400 py-10">ไม่พบรูปภาพ</div>
+                {% endif %}
+            </div>
+
+            <div class="space-y-3 text-sm text-gray-700">
+                <div class="flex justify-between  pb-2">
+                    <span class="font-semibold">ชื่อสินค้า:</span>
+                    <span>{{ product.name }}</span>
+                </div>
+
+                <div class=" pb-2 ">
+                    <span class="font-semibold block mb-1">รายละเอียด:</span>
+                    <p class="text-gray-600">{{ product.description }}</p>
+                </div>
+
+                <div class="flex justify-between  pb-2">
+                    <span class="font-semibold">ราคาต่อชิ้น:</span>
+                    <span class="text-indigo-600 font-bold">{{ product.price }} บาท</span>
+                </div>
+
+                <div class="flex justify-between  pb-2">
+                    <span class="font-semibold">จำนวนคงเหลือ:</span>
+                    <span>{{ product.stock }} ชิ้น</span>
+                </div>
+
+                <!-- จำนวนที่จะซื้อ -->
+                <div class="flex justify-between items-center pb-2 mt-2">
+                    <span class="font-semibold text-base">จำนวนที่ต้องการซื้อ:</span>
+                    <div class="flex items-center">
+                        <input type="number" id="quantityInput" value="1" min="1" max="{{ product.stock }}"
+                            class="w-20 text-center border border-gray-300 rounded-md py-1 px-2 focus:ring-indigo-500 focus:border-indigo-500 text-base font-bold text-gray-700">
+                        <span class="ml-2">ชิ้น</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-3 mt-2 border-t border-dashed border-gray-300">
+                    <span class="font-bold text-lg text-gray-800">ยอดชำระสุทธิ:</span>
+                    <span class="font-bold text-2xl text-green-600">
+                        <span id="final-price-display">{{ total_price|floatformat:0 }}</span> บาท
+                    </span>
+                    </div>
+                <p class="text-xs text-right text-gray-500 mt-1">*ราคาจะเปลี่ยนตามจำนวนและค่าจัดส่ง</p>
+            </div>
+        </div>
+
+        <!-- ฝั่งขวา: ฟอร์มที่คุณให้มา (ปรับให้ใช้ product) -->
+        <div>
+            <form method="post" enctype="multipart/form-data" id="paymentForm">
+                {% csrf_token %}
+
+                <input type="hidden" name="quantity" id="hiddenQuantity" value="1">
+
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">2. เลือกวิธีการรับสินค้า</h3>
+                    <div class="space-y-3 text-gray-900">
+                        <label
+                            class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition bg-white has-checked:border-indigo-500 has-checked:bg-indigo-50">
+                            <div class="flex items-center">
+                                <input type="radio" name="shipping_method" value="pickup" checked
+                                    class="h-5 w-5 text-indigo-600">
+                                <div class="ml-3">
+                                    <span class="font-medium block text-gray-900">รับสินค้าเองที่ร้าน</span>
+                                </div>
+                            </div>
+                            <span class="text-green-600 font-bold">ฟรี</span>
+                        </label>
+
+                        <label
+                            class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition bg-white has-checked:border-indigo-500 has-checked:bg-indigo-50">
+                            <div class="flex items-center">
+                                <input type="radio" name="shipping_method" value="standard"
+                                    class="h-5 w-5 text-indigo-600">
+                                <span class="ml-3 font-medium text-gray-900">ขนส่งธรรมดา (Standard)</span>
+                            </div>
+                            <span class="text-gray-900 font-bold">+50 ฿</span>
+                        </label>
+
+                        <label
+                            class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition bg-white has-checked:border-indigo-500 has-checked:bg-indigo-50">
+                            <div class="flex items-center">
+                                <input type="radio" name="shipping_method" value="express"
+                                    class="h-5 w-5 text-indigo-600">
+                                <span class="ml-3 font-medium text-gray-900">ส่งด่วนพิเศษ (Express)</span>
+                            </div>
+                            <span class="text-gray-900 font-bold">+100 ฿</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4">3. ชำระเงิน</h3>
+
+                    <div class="mb-3">
+                        <label
+                            class="flex items-center p-4 border rounded-t-lg bg-blue-50 border-blue-200 cursor-default">
+                            <input type="radio" name="payment_method" value="transfer" checked
+                                class="h-5 w-5 text-indigo-600">
+                            <span class="ml-3 font-bold text-blue-900">โอนเงินผ่านธนาคาร</span>
+                        </label>
+
+                        <div class="p-5 bg-white border-x border-b rounded-b-lg text-sm shadow-sm">
+                            <div class="flex items-center mb-4">
+                                <div
+                                    class="w-12 h-12 mr-3 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xl shadow">
+                                    K</div>
+                                <div>
+                                    <p class="font-bold text-gray-800 text-lg">ธนาคารกสิกรไทย</p>
+                                    <p class="text-gray-600">เลขบัญชี: <span
+                                            class="font-mono font-bold text-black text-lg">123-4-56789-0</span></p>
+                                    <p class="text-gray-600">ชื่อบัญชี: ร้านวายุสตูดิโอ</p>
+                                </div>
+                            </div>
+
+                            <hr class="border-gray-200 my-4">
+
+                            <div class="mb-2">
+                                <label class="block mb-2 font-bold text-gray-700">แนบสลิปโอนเงิน: <span
+                                        class="text-red-500">*</span></label>
+
+                                <div class="flex items-center justify-center w-full">
+                                    <label for="slip-upload"
+                                        class="flex flex-col items-center justify-center w-full h-48 border-2 border-indigo-300 border-dashed rounded-lg cursor-pointer bg-indigo-50 hover:bg-indigo-100 transition duration-300 relative overflow-hidden group">
+
+                                        <div id="upload-placeholder"
+                                            class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <svg class="w-10 h-10 mb-3 text-indigo-500 group-hover:scale-110 transition-transform"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                                                </path>
+                                            </svg>
+                                            <p class="mb-2 text-sm text-indigo-700 font-semibold">คลิกเพื่ออัปโหลดสลิป
+                                            </p>
+                                            <p class="text-xs text-indigo-500">รองรับไฟล์ภาพ (JPG, PNG)</p>
+                                        </div>
+
+                                        <img id="image-preview" src="#" alt="Slip Preview"
+                                            class="hidden absolute inset-0 w-full h-full object-contain p-2 bg-white/50 backdrop-blur-sm" />
+
+                                        <input id="slip-upload" name="payment_slip" type="file" class="hidden"
+                                            accept="image/*" required onchange="previewImage(this)" />
+                                    </label>
+                                </div>
+                                <p id="file-name" class="mt-2 text-xs text-center text-gray-500 min-h-[1.2em]"></p>
+                                <p id="slip-error" class="mt-2 text-sm text-red-600 font-semibold text-center hidden">
+                                    ⚠️ ยังไม่ได้อัปโหลดสลิป กรุณาแนบสลิปก่อนยืนยัน
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="submitPaymentBtn" type="submit" disabled
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg text-lg shadow-lg transition
+                          transform hover:scale-[1.02] mt-4
+                          disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600 disabled:hover:scale-100">
+                    ✅ ยืนยันแจ้งชำระเงิน
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- ส่วนคำนวณราคา ---
+        const rawUnitPrice = "{{ product.price|default:0|floatformat:0 }}";
+        const unitPrice = parseInt(rawUnitPrice.replace(/,/g, ''));
+        const quantityInput = document.getElementById('quantityInput');
+        const hiddenQuantity = document.getElementById('hiddenQuantity');
+        const priceDisplay = document.getElementById('final-price-display');
+        const shippingRadios = document.querySelectorAll('input[name="shipping_method"]');
+
+        function calculateTotal() {
+            let qty = parseInt(quantityInput.value);
+            const maxQty = parseInt(quantityInput.getAttribute('max')) || 1;
+
+            if (isNaN(qty) || qty < 1) { qty = 1; }
+            if (qty > maxQty) { qty = maxQty; }
+
+            quantityInput.value = qty;
+            hiddenQuantity.value = qty;
+
+            let shippingCost = 0;
+            shippingRadios.forEach(radio => {
+                if (radio.checked) {
+                    if (radio.value === 'standard') shippingCost = 50;
+                    else if (radio.value === 'express') shippingCost = 100;
+                    else shippingCost = 0;
+                }
+            });
+            const grandTotal = (unitPrice * qty) + shippingCost;
+            priceDisplay.innerText = grandTotal.toLocaleString();
+        }
+
+        quantityInput.addEventListener('input', calculateTotal);
+        quantityInput.addEventListener('change', calculateTotal);
+        shippingRadios.forEach(radio => { radio.addEventListener('change', calculateTotal); });
+        calculateTotal();
+    });
+
+    // --- ส่วนแสดงตัวอย่างรูปสลิป (ใช้โค้ดเดิมของคุณ) ---
+    function previewImage(input) {
+        const preview = document.getElementById('image-preview');
+        const placeholder = document.getElementById('upload-placeholder');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+            fileNameDisplay.innerText = "ไฟล์ที่เลือก: " + input.files[0].name;
+            fileNameDisplay.classList.add('text-green-600');
+        } else {
+            preview.src = "#";
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            fileNameDisplay.innerText = "";
+        }
+    }
+    // ✅ ล็อกปุ่มถ้ายังไม่แนบสลิป + แจ้งเตือน + ไฮไลท์
+    document.addEventListener('DOMContentLoaded', function () {
+        const paymentForm = document.getElementById('paymentForm');
+        const slipInput = document.getElementById('slip-upload');
+        const uploadBox = document.querySelector('label[for="slip-upload"]');
+        const submitBtn = document.getElementById('submitPaymentBtn');
+        const slipError = document.getElementById('slip-error');
+
+        function setSubmitEnabled(enabled) {
+            submitBtn.disabled = !enabled;
+            if (enabled) slipError.classList.add('hidden');
+        }
+
+        // เริ่มต้น: ปิดปุ่มไว้ก่อน (ถ้ายังไม่มีไฟล์)
+        setSubmitEnabled(slipInput.files && slipInput.files.length > 0);
+
+        // เลือกไฟล์แล้ว -> ปลดล็อกปุ่ม + เอาแดงออก
+        slipInput.addEventListener('change', function () {
+            const hasFile = this.files && this.files.length > 0;
+            setSubmitEnabled(hasFile);
+
+            if (hasFile) {
+                uploadBox.classList.remove('border-red-500', 'bg-red-50');
+                uploadBox.classList.add('border-indigo-300');
+            }
+        });
+
+        // กัน submit ถ้าไม่มีไฟล์ (กรณี enter หรือบาง browser)
+        paymentForm.addEventListener('submit', function (e) {
+            if (!slipInput.files || slipInput.files.length === 0) {
+                e.preventDefault();
+
+                slipError.classList.remove('hidden');
+                alert("⚠️ กรุณาแนบสลิปโอนเงินก่อนยืนยันการสั่งซื้อ");
+
+                uploadBox.classList.remove('border-indigo-300');
+                uploadBox.classList.add('border-red-500', 'bg-red-50');
+
+                uploadBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const slipInput = document.getElementById('slip-upload');      // ✅ ของคุณ
+        const submitBtn = document.getElementById('submitPaymentBtn'); // ✅ ของคุณ
+        const slipError = document.getElementById('slip-error');
+        const uploadBox = document.querySelector('label[for="slip-upload"]');
+
+        function refreshUI() {
+            const hasFile = slipInput && slipInput.files && slipInput.files.length > 0;
+
+            // ปุ่ม
+            if (submitBtn) submitBtn.disabled = !hasFile;
+
+            // ข้อความแดง (ถ้าไม่มีไฟล์ ให้โชว์)
+            if (slipError) {
+                if (hasFile) slipError.classList.add('hidden');
+                else slipError.classList.remove('hidden');
+            }
+
+            // กรอบแดง/ปกติ
+            if (uploadBox) {
+                if (hasFile) {
+                    uploadBox.classList.remove('border-red-500', 'bg-red-50');
+                    uploadBox.classList.add('border-indigo-300');
+                } else {
+                    // ยังไม่ต้องแดงทันทีจะได้ไม่แรงเกินไป
+                    uploadBox.classList.remove('border-red-500', 'bg-red-50');
+                }
+            }
+        }
+
+        // โหลดหน้าแรก
+        refreshUI();
+
+        // เปลี่ยนไฟล์แล้วอัปเดต
+        if (slipInput) {
+            slipInput.addEventListener('change', refreshUI);
+        }
+    });
+</script>
+{% endblock %}
