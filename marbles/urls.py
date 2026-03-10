@@ -11,5 +11,4 @@ urlpatterns = [
     path('manager/delete/<int:order_id>/', views.delete_marbles_order, name='delete_marbles_order'), # URL สำหรับลบคำสั่งทำป้าย
 
     path('marbles/manager/edit/<int:order_id>/', views.edit_order_marbles, name='edit_order_marbles'), # URL สำหรับแก้ไขคำสั่งทำป้าย
-    
 ]

@@ -191,6 +191,7 @@ class DashboardView(AdminRequiredMixin, TemplateView):
 # 3. User Management (จัดการผู้ใช้)
 # ==========================================
 
+# หน้าจัดการผู้ใช้ (ใช้ AdminRequiredMixin -> Staff ทุกคนเข้าได้)
 class UserManageView(AdminRequiredMixin, ListView):
     model = User
     template_name = 'admin/admin_user_manage.html'
@@ -218,6 +219,7 @@ class UserManageView(AdminRequiredMixin, ListView):
         
         return queryset
 
+# ฟังก์ชันเปิด/ปิดการใช้งานผู้ใช้ (ใช้ is_staff_check -> Staff ทุกคนเข้าได้)
 @user_passes_test(is_staff_check)
 def toggle_user_status(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -234,6 +236,7 @@ def toggle_user_status(request, user_id):
         
     return redirect('admin_user_manage')
 
+# ฟังก์ชันลบผู้ใช้ (ใช้ is_staff_check -> Staff ทุกคนเข้าได้)
 @user_passes_test(is_staff_check)
 def delete_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -315,7 +318,7 @@ def delete_event(request, event_id):
     messages.success(request, f"ลบคิวงาน '{title}' เรียบร้อยแล้ว")
     return redirect('admin_calendar')
 
-# API ส่งข้อมูล JSON ให้ปฏิทิน (ทุกคนดูได้)
+# API ส่งข้อมูล JSON ให้ปฏิทิน (ทุกคนดูได้) 
 def calendar_events(request):
     events = WorkSchedule.objects.all()
     data = []

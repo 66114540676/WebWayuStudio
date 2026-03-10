@@ -13,6 +13,7 @@ class CustomFrameOrder(models.Model):
         ('16x20', '16 x 20 นิ้ว'),
         ('20x24', '20 x 24 นิ้ว'),
         ('24x36', '24 x 36 นิ้ว'),
+        ('25x38', '25 x 38 นิ้ว'),
     ]
     
     # ตัวเลือกแบบกรอบ
@@ -85,6 +86,7 @@ class CustomFrameOrder(models.Model):
             '16x20': 600,
             '20x24': 800,
             '24x36': 1200,
+            '25x38': 1500,
         }
         # คืนค่าราคาตาม size_option ที่ลูกค้าเลือก
         return price_list.get(self.size_option, 0)

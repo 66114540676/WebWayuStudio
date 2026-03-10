@@ -6,10 +6,13 @@ class CustomMarblesOrder(models.Model):
     SIZE_CHOICES = [
         ('15x20', '15x20 ซม. (1,000 บาท)'),
         ('14x29', '14x29 ซม. (1,700 บาท)'),
+        ('20x30', '20x30 ซม. (2,500 บาท)'),
     ]
 
     STONE_STYLE_CHOICES = [
         ('black_granite', 'หินแกรนิตดำ'),
+        ('white_marble', 'หินอ่อนขาว'),
+        ('red_granite', 'หินแกรนิตแดง'),
     ]
 
     STATUS_CHOICES = [
@@ -67,6 +70,8 @@ class CustomMarblesOrder(models.Model):
             self.price = 1000
         elif self.size == '14x29':
             self.price = 1700
+        elif self.size == '20x30':
+            self.price = 2500
         else:
             self.price = 0
 

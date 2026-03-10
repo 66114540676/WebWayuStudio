@@ -68,6 +68,7 @@ def signup_view(request):
 # 2. ส่วนจัดการโปรไฟล์และข้อมูลส่วนตัว (User Profile Management)
 # ==========================================
 
+# --- ส่วนแก้ไขโปรไฟล์ ---
 @login_required
 def profile_view(request):
     if request.method == 'POST':
@@ -86,6 +87,7 @@ def profile_view(request):
     }
     return render(request, 'accounts/profile.html', context)
 
+# --- ส่วนเปลี่ยนรหัสผ่าน ---
 @login_required
 def change_password_view(request):
     if request.method == 'POST':
@@ -105,11 +107,13 @@ def change_password_view(request):
 # 3. ส่วนจัดการประวัติการสั่งซื้อ (Order History & Dashboard)
 # ==========================================
 
+# --- ส่วนแสดง Dashboard เลือกประเภทการสั่งซื้อ ---
 @login_required
 def order_history_dashboard(request):
     """แสดงหน้า Dashboard ให้เลือกประเภท"""
     return render(request, 'accounts/order_history_dashboard.html')
 
+# --- ส่วนแสดงประวัติการสั่งซื้อแต่ละประเภท พร้อมตัวกรองสถานะ ---
 @login_required
 def order_history(request, order_type):
     context = {}
@@ -155,16 +159,19 @@ def order_history(request, order_type):
 # 4. ส่วนแสดงรายละเอียดการสั่งซื้อแต่ละประเภท (Order Details)
 # ==========================================
 
+# --- ส่วนแสดงรายละเอียดการสั่งซื้อสินค้า ---
 @login_required
 def product_order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, customer=request.user)
     return render(request, 'stores/order_stores_detail.html', {'order': order})
 
+# --- ส่วนแสดงรายละเอียดการสั่งทำกรอบรูป ---
 @login_required
 def framing_order_detail(request, order_id):
     order = get_object_or_404(CustomFrameOrder, id=order_id, user=request.user)
     return render(request, 'framings/order_framing_detail.html', {'order': order})
 
+# --- ส่วนแสดงรายละเอียดการสั่งทำป้ายหินอ่อน ---
 @login_required
 def marbles_order_detail(request, order_id):
     order = get_object_or_404(CustomMarblesOrder, id=order_id, user=request.user)

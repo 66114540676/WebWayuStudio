@@ -113,9 +113,6 @@ def edit_order_marbles(request, order_id):
         order.size = request.POST.get('size')
         order.stone_style = request.POST.get('stone_style')
         
-        # --- จุดที่แก้ไข (SAFE GUARD) ---
-        # เช็คว่ามีค่าส่งมาไหม? ถ้ามีค่อยอัปเดต ถ้าไม่มี (เป็น None) ให้ข้ามไป (ใช้ค่าเดิมใน DB)
-        
         new_status = request.POST.get('status')
         if new_status: 
             order.status = new_status
@@ -129,7 +126,6 @@ def edit_order_marbles(request, order_id):
             order.payment_method = new_payment
             
         order.note = request.POST.get('note')
-        # --------------------------------
         
         # 4. รับไฟล์รูปภาพ
         if request.FILES.get('deceased_photo'):
